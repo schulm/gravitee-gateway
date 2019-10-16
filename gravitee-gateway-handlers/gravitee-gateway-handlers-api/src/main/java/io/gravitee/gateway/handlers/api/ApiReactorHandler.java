@@ -97,6 +97,8 @@ public class ApiReactorHandler extends AbstractReactorHandler implements Initial
                     handleError(context, failure);
                 })
                 .errorHandler(failure -> {
+                    context.request().metrics().setApiResponseTimeMs(System.currentTimeMillis() -
+                            context.request().metrics().getApiResponseTimeMs());
                     handleError(context, failure);
                 })
                 .exitHandler(__ -> {
@@ -167,9 +169,15 @@ public class ApiReactorHandler extends AbstractReactorHandler implements Initial
 
         chain
                 .errorHandler(failure -> {
+
+                    context.request().metrics().setApiResponseTimeMs(System.currentTimeMillis() -
+                            context.request().metrics().getApiResponseTimeMs());
                     handleError(context, failure);
                 })
                 .streamErrorHandler(failure -> {
+
+                    context.request().metrics().setApiResponseTimeMs(System.currentTimeMillis() -
+                            context.request().metrics().getApiResponseTimeMs());
                     handleError(context, failure);
                 })
                 .exitHandler(__ -> handler.handle(context))
