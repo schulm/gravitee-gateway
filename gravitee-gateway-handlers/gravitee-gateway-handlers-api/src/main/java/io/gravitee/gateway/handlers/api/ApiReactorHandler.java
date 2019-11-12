@@ -124,8 +124,6 @@ public class ApiReactorHandler extends AbstractReactorHandler implements Initial
 
             // Override the stream error handler to be able to cancel connection to backend
             chain.streamErrorHandler(failure -> {
-                context.request().metrics().setApiResponseTimeMs(System.currentTimeMillis() -
-                        context.request().metrics().getApiResponseTimeMs());
                 connection.cancel();
                 handleError(context, failure);
             });
@@ -198,10 +196,10 @@ public class ApiReactorHandler extends AbstractReactorHandler implements Initial
                 .handle(context);
     }
 
-
     private void handleError(ExecutionContext context, ProcessorFailure failure) {
+        context.request().metrics().setApiResponseTimeMs(System.currentTimeMillis() -
+                context.request().metrics().getApiResponseTimeMs());
         context.setAttribute(ExecutionContext.ATTR_PREFIX + "failure", failure);
-
         errorProcessorChain
                 .create()
                 .handler(__ -> handler.handle(context))
